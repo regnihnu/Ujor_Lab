@@ -15,6 +15,7 @@ from numpy import fromfile
 # Description of the script's function
 script_descr = """
 Download and format all of the files associated with a genome from the NCBI's ftp site.
+
 All associated files will be downloaded, including genomic DNA, proteins, RNAs, feature table.
 These files will also be formatted into BLAST-able databases.
 """
@@ -85,21 +86,21 @@ if __name__ == "__main__":
         fromfile_prefix_chars="@",
         add_help=False,
     )
-    dlgenome_group1 = dlgenome_parser.add_argument_group("Options")
+    dlgenome_group1 = dlgenome_parser.add_argument_group("Information to be provided")
     dlgenome_group1.add_argument(
-        "-org", "--organism",
+        "-n", "--organism-name",
         help="(Optional) Organism name. This will be used to create the output folder and rename the files associated with the downloaded genome. Words in the name should be separated by underscores, not spaces. The default value is the name of the last folder in output directory.",
         metavar="<name>",
     )
     dlgenome_group1.add_argument(
-        "-ftp", "--ftp",
+        "-f", "--ftp",
         help="(Required) Ftp address of the folder containing this genome on the NCBI's server",
         metavar="<link>",
         required=True,
     )
     dlgenome_group1.add_argument(
-        "-out", "--outdir",
-        help="(Required) Path to the output folder (which will be created if not present).",
+        "-o", "--outdir",
+        help="(Required) Path to the output folder (which will be created if not present). If organism name is not provided, the end folder in the directory will be used as the organism name.",
         metavar="<path>",
         required=True,
     )
@@ -107,6 +108,4 @@ if __name__ == "__main__":
         dlgenome_parser.print_help()
     else:
         dlgenome_args = dlgenome_parser.parse_args()
-        print(dlgenome_args)
         download_genome(dlgenome_args.ftp, dlgenome_args.outdir, dlgenome_args.organism)
-    
