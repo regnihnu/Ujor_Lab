@@ -6,7 +6,6 @@ import subprocess
 import glob
 import gzip
 import urllib
-from numpy import require
 import requests
 
 
