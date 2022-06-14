@@ -11,7 +11,8 @@ This Git repository houses code scripts related to my doctoral research, includi
 
 Contact: [mtruong4@wisc.edu](mtruong4@wisc.edu)
 
-[1]: ./Pictures/Portrait_2_cropped_round.png "Portrait of Hieu Minh Truong"
+[1]: <img src="./Pictures/Portrait_2_cropped_round.png" width="200" height="100">
+ "Portrait of Hieu Minh Truong"
 [2]: <https://microbiology.wisc.edu/> "Microbiology Doctoral Training Program at UW-Madison"
 [3]: <https://foodsci.wisc.edu/ujor_lab/> "Ujor Laboratory website"
 [4]: ./Pictures/LabPhoto_2022-03_2.jpg "Ujor Lab fun picture"
