@@ -46,13 +46,13 @@ if __name__ == "__main__":
     dlkegg_group1.add_argument(
         "-a", "--accession",
         help="(Required) Comma-separated list of accession numbers.",
-        metavar="<accession(s)>",
+        metavar="<accession>",
         required=True,
     )
     dlkegg_group1.add_argument(
         "-t", "--seq-type",
         help="(Required) Type of sequence to be downloaded. Can be either 'nucl' or 'prot', or both in a comma-separated list. This applies to all accession numbers provided.",
-        metavar="<seqtype(s)>",
+        metavar="<seqtype>",
         required=True,
     )
     dlkegg_group1.add_argument(
