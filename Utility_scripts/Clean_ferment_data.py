@@ -19,9 +19,9 @@ Accepts exactly one argument, which is the path to an Excel file containing at l
     2. "Sampling times" - This sheet contains the actual date & time at which samples were taken for measurements.
     3. "Data" - This sheet contains recorded experimental measurements (e.g., optical density, pH). The missing data will be populated into this sheet.
 
-The folder containing the raw data Excel file should have a folder named "GC_output" containing output files from the GC system. The GC output files may also be contained in one level of subfolders within the "GC_output" folder.
+The folder containing the raw data Excel file should have a folder named "gc_output" containing output files from the GC system. The GC output files may also be contained in one level of subfolders within the "gc_output" folder.
 
-Returns 2 files containing cleaned data and 1 file containing the list of compounds measured by gas chromatography into the folder "Cleaned_data":
+Returns 2 files containing cleaned data and 1 file containing the list of compounds measured by gas chromatography into the folder "cleaned_data":
     1. "*cleaned.csv"
     2. "*cleaned.xlsx"
     3. "*compound_list.csv"
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         ferment_data, ferment_times, ferment_cultures = read_ferment_data(ferment_infile)
 
         # Read GC output files and record data
-        with os.scandir("GC_output") as gc_scan:
+        with os.scandir("gc_output") as gc_scan:
             for entry1 in gc_scan:
                 if entry1.is_dir():
                     with os.scandir(entry1) as gc_sub_scan:
@@ -141,7 +141,7 @@ if __name__ == "__main__":
                     compound_list = read_gc_result(ferment_data, entry1)
 
         # Save cleaned and filled dateframes to files
-        outdir = "Cleaned_data"
+        outdir = "cleaned_data"
         try:
             os.mkdir(outdir)
         except:
