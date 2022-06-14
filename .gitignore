@@ -1,9 +1,9 @@
-Protein_databases
-Genomes/*/
+protein_databases
+genomes/*/
 .venv
 .vscode
-Ujor_Lab.code-workspace
-Proj_*
+ujor_lab.code-workspace
+proj_*
 
 
 # Byte-compiled / optimized / DLL files
