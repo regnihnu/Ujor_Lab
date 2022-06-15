@@ -1,8 +1,5 @@
 # %%
 # Import dependencies
-from msilib import sequence
-from multiprocessing.spawn import old_main_modules
-from optparse import Values
 import subprocess
 from numpy import append
 import pandas as pd

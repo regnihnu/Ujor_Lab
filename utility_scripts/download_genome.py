@@ -6,9 +6,6 @@ import subprocess
 import glob
 import gzip
 import argparse
-from click import help_option
-
-from numpy import fromfile
 
 
 # %%
