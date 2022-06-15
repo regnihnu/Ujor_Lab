@@ -1,6 +1,7 @@
 protein_databases
 genomes/*/
 .venv
+.venv_bash
 .vscode
 ujor_lab.code-workspace
 proj_*
