@@ -1,5 +1,6 @@
 protein_databases
 genomes/*/
+plasmids/*
 .venv
 .venv_bash
 .vscode
