@@ -83,7 +83,7 @@ if __name__ == "__main__":
         fromfile_prefix_chars="@",
         add_help=False,
     )
-    dlgenome_group1 = dlgenome_parser.add_argument_group("Information to be provided")
+    dlgenome_group1 = dlgenome_parser.add_argument_group("Information to provide")
     dlgenome_group1.add_argument(
         "-n", "--organism-name",
         help="(Optional) Organism name. This will be used to create the output folder and rename the files associated with the downloaded genome. Words in the name should be separated by underscores, not spaces. The default value is the name of the last folder in output directory.",

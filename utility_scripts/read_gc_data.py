@@ -1,71 +1,29 @@
+from genericpath import isfile
 import sys
 import glob
 import os
 import io
 import csv
+from unittest import result
 import numpy as np
 import pandas as pd
+import argparse
 
 
 script_descr = """
-From gas chromatography output files, reads in the concentration of relevant compounds measured for each experimental sample.
+Read output text files from gas chromatography and finds the concentration of relevant compounds measured for each experimental sample.
 
 Returns 3 files:
-    "*gc.csv" and "*gc.xlsx" containing concentrations of measured compound for each experimental sample.
-    "*compound_list.csv" containing the name of the compounds that were measured.
+	"*gc.csv" and "*gc.xlsx" containing concentrations of measured compound for each experimental sample.
+	"*compound_list.csv" containing the names of the compounds that were measured.
 """
 
 
-# Read fermentation spreadsheets into dataframes
-def read_ferment_data(fermentfile):
-    """Read in Excel spreadsheet, clean data, and return data as pandas DataFrames.
+# Define function to read GC results text files
+def read_gc_data(gc_file):
+    """Retrieves compound concentration results from a single GC output file in .txt format and record the concentrations of all compounds measured as a list..
 
-    The 3 resulting dataframes are:
-        1. ferment_data, containing the experimental measurements
-        2. ferment_times, containing the time at which samples were actually taken for measurements
-        3. ferment_cultures, containing the experimental setup of the sample types
-    """
-
-    ferment_data = pd.read_excel(fermentfile, sheet_name="Data", index_col="Sample ID")
-
-    ferment_times = pd.read_excel(
-        fermentfile, sheet_name="Sampling times", index_col="Planned time point"
-    )
-
-    ferment_cultures = pd.read_excel(
-        fermentfile, sheet_name="Culture types", index_col="Culture type"
-    )
-
-    # Drop completely empty columns
-    ferment_data.drop(
-        columns=ferment_data.columns[ferment_data.isnull().all(axis=0)], inplace=True
-    )
-
-    # Fill in culture information
-    # for col in ferment_cultures.columns.tolist():
-    #     ferment_data.loc[:,col] = ferment_data.loc[:,'Culture type'].map(ferment_cultures[col])
-
-    # Fill in sampling time for all samples in ferment_data, using data from ferment_times
-    for col in ferment_times.columns.tolist():
-        ferment_data.loc[:, col] = ferment_data.loc[:, "Planned time point"].map(
-            ferment_times[col]
-        )
-
-    # Calculate actual sampling time points
-    ferment_data.loc[:, "Actual time point (h)"] = (
-        ferment_data["Actual sampling time"]
-        - ferment_times.loc[0, "Actual sampling time"]
-    ) / np.timedelta64(1, "h")
-
-    return (ferment_data, ferment_times, ferment_cultures)
-
-
-# %%
-# Read GC results into fermentation dataframe
-def read_gc_result(ferment_dataframe, gc_file):
-    """Retrieves compound concentration results from a GC output file and record that into the fermetation dataframe.
-    
-    Uses the unique sample ID to correctly match concentration results to each sample.
+    Uses the sample ID unique to each experiment to identify experimental samples.
     """
     with open(gc_file, "r") as gc_content:
         gc_output = ""
@@ -94,51 +52,136 @@ def read_gc_result(ferment_dataframe, gc_file):
             index_col="Name",
         )
         gc_compounds = gc_results.index.rename("Compound")
-        ferment_dataframe.loc[sample_id, gc_compounds] = (
-            gc_results["Conc."] * 10
-        ).tolist()
-        return gc_compounds
+        concs = (gc_results["Conc."] * 10).tolist()
+        return sample_id, gc_compounds, concs
     else:
-        pass
+        return -999, -999, -999
 
 
-# %%
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        # Display script description if incorrectly called
-        print(script_descr)
+    read_gc_parser = argparse.ArgumentParser(
+        description=script_descr,
+        fromfile_prefix_chars="@",
+        add_help=False,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    read_gc_parser_group1 = read_gc_parser.add_argument_group("Information to provide")
+    read_gc_parser_group1.add_argument(
+        "-f",
+        "--file",
+        help="GC raw data file. Can be used multiple times.",
+        action="append",
+        metavar="<file>",
+    )
+    read_gc_parser_group1.add_argument(
+        "-i",
+        "--indir",
+        help="Directory containing GC raw data files in .txt format. These files can be contained in this directory but can also be contained in subdirectories within this one. Can be used multiple times. \n Note: using a directory with subdirectories requires the '--recursive' option.",
+        metavar="<indir>",
+        action="append",
+    )
+    read_gc_parser_group1.add_argument(
+        "-o",
+        "--outdir",
+        help="Directory where the result records will be placed.",
+        metavar="<outdir>",
+        required=True,
+    )
+    read_gc_parser_group1.add_argument(
+        "-e",
+        "--experiment",
+        help="Name of the experiment, which will be used as the base name for all result files.",
+        metavar="<experiment>",
+        required=True,
+    )
+
+    read_gc_parser_group2 = read_gc_parser.add_argument_group(
+        "Options to modify the script's behavior"
+    )
+    read_gc_parser_group2.add_argument(
+        "-r",
+        "--recursive",
+        help="Search the provided director(y/ies) and its subdirector(y/ies) recursively for GC raw data files.",
+        action="store_true",
+    )
+    read_gc_parser_group2.add_argument(
+        "-v",
+        "--verbose",
+        help="Displays the script's progress and results in different verbosity levels:\n 1. Display the resulting concentration values for each sample.\n 2. Display the file being read and the resulting concentration values.",
+        action="count",
+        default=0,
+    )
+
+    if len(sys.argv) == 1:
+        read_gc_parser.print_help()
     else:
-        # Extract file name and working directory from the provided raw data filepath
-        ferment_inpath = sys.argv[1]
-        workdir, ferment_infile = os.path.split(ferment_inpath)
-        os.chdir(workdir)
+        read_gc_args = read_gc_parser.parse_args()
+        read_gc_result = []
+        for indir in read_gc_args.indir:
+            if read_gc_args.recursive == True:
+                for walk_entry in os.walk(indir):
+                    for gc_filename in walk_entry[2]:
+                        if gc_filename.endswith(".txt"):
+                            gc_filepath = os.path.join(walk_entry[0], gc_filename)
+                            sample_id, compound_list, concs = read_gc_data(gc_filepath)
+                            if sample_id >= 0:
+                                read_gc_result.append(
+                                    [sample_id, *concs, os.path.basename(gc_filepath)]
+                                )
+            else:
+                for scan_entry in os.scandir(indir):
+                    if scan_entry.isfile() and scan_entry.endswith(".txt"):
+                        gc_filepath = os.path.join(scan_entry, gc_filename)
+                        sample_id, compound_list, concs = read_gc_data(gc_filepath)
+                        if sample_id >= 0:
+                            read_gc_result.append(
+                                [sample_id, *concs, os.path.basename(gc_filepath)]
+                            )
 
-        # Read in raw data from Excel file
-        ferment_data, ferment_times, ferment_cultures = read_ferment_data(ferment_infile)
+        read_gc_result.sort(key=(lambda x: x[0]))
 
-        # Read GC output files and record data
-        with os.scandir("gc_output") as gc_scan:
-            for entry1 in gc_scan:
-                if entry1.is_dir():
-                    with os.scandir(entry1) as gc_sub_scan:
-                        for entry2 in gc_sub_scan:
-                            if entry2.is_file and entry2.name.endswith(".txt"):
-                                compound_list = read_gc_result(ferment_data, entry2)
-                elif entry1.is_file and entry1.name.endswith(".txt"):
-                    compound_list = read_gc_result(ferment_data, entry1)
+        if read_gc_args.verbose == 1:
+            print(
+                "\n",
+                ("{:^13}" * (1 + len(compound_list))).format(
+                    "Sample ID", *compound_list
+                ),
+            )
+            for sample in read_gc_result:
+                print(
+                    "{:^13}".format(sample[0]),
+                    ("{:^13.3}" * (len(compound_list))).format(*sample[1:]),
+                    sep="",
+                )
 
-        # Save cleaned and filled dateframes to files
-        outdir = "cleaned_data"
-        try:
-            os.mkdir(outdir)
-        except:
-            FileExistsError
-        
-        ferment_outfile = ferment_infile.replace("raw.xlsx", "")
+        elif read_gc_args.verbose == 2:
+            print(
+                "\n",
+                ("{:^13}" * (2 + len(compound_list))).format(
+                    "Sample ID", *compound_list, "File name"
+                ),
+            )
+            for sample in read_gc_result:
+                print(
+                    "{:^13}".format(sample[0]),
+                    ("{:^13.3}" * (len(compound_list))).format(*sample[1:-1]),
+                    "{}".format(sample[-1]),
+                    sep="",
+                )
 
-        ferment_data.to_csv(os.path.join(outdir, ferment_outfile + "cleaned.csv"))
-        ferment_data.to_excel(os.path.join(outdir, ferment_outfile + "cleaned.xlsx"))
-        compound_list.to_series().to_csv(
-            os.path.join(outdir, ferment_outfile + "compound_list.csv"),
+        # Save to file
+        pd.Series(compound_list).to_csv(
+            os.path.join(
+                read_gc_args.outdir, read_gc_args.experiment + "_compounds.csv"
+            ),
+            index=False,
+        )
+        pd.DataFrame(read_gc_result, columns=["Sample ID", *compound_list, "File name"]).to_csv(
+            os.path.join(read_gc_args.outdir, read_gc_args.experiment + "_data.csv"),
+            index=False,
+        )
+        pd.DataFrame(read_gc_result, columns=["Sample ID", *compound_list, "File name"]).to_excel(
+            os.path.join(read_gc_args.outdir, read_gc_args.experiment + "_data.xlsx"),
             index=False,
         )
