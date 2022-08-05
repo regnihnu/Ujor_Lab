@@ -1,10 +1,8 @@
-from genericpath import isfile
 import sys
 import glob
 import os
 import io
 import csv
-from unittest import result
 import numpy as np
 import pandas as pd
 import argparse
