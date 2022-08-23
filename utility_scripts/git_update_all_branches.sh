@@ -1,10 +1,11 @@
 #!/bin/sh
 
 cd /mnt/h/ujor_lab
+remote_repo="ujor_lab_hieu"
 
 git checkout main
-echo ">>> Pulling remote branch ujor_lab/main into local branch main"
-git pull ujor_lab_hieu main
+echo ">>> Pulling remote branch "$remote_repo"/main into local branch main"
+git pull $remote_repo main
 echo
 
 BRANCHES=`git branch --format="%(refname)"`
