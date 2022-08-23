@@ -12,32 +12,50 @@ from scipy import stats
 
 
 # %%
-# Load cleaned and filled dataframes
-ferment_data = pd.read_csv(r"csv_files\ferment_data.csv", index_col="Sample ID")
-compound_list = pd.read_csv(r"csv_files\compound_list.csv", index_col="Compound").index
+# Import raw data
+compound_list = pd.read_csv(r"gc_output\20220322_coculture_time_compounds.csv", index_col="Compound").index
+gc_raw = pd.read_csv(r"gc_output\20220322_coculture_time_data.csv", index_col="Sample ID")
+ferment_raw = pd.read_excel(r"220322_coculture_time_raw.xlsx", sheet_name="Data", index_col="Sample ID")
+ferment_time = pd.read_excel(r"220322_coculture_time_raw.xlsx", sheet_name="Sampling times", index_col="Planned time point")
+
+
+# %%
+# Remove duplicate GC measurements and empty ferment data columns
+gc_cleaned = gc_raw.drop_duplicates(subset=compound_list)
+ferment_data = ferment_raw.dropna(axis=1, how="all")
+
+
+# %%
+# Fill in sampling time
+ferment_data = pd.merge(ferment_data, ferment_time, on="Planned time point")
+ferment_data.index.rename("Sample ID", inplace=True)
+
+
+# %%
+ferment_data
 
 
 # %%
 # Separate samples measured using different standards
-ferment_data_H = ferment_data.loc[ferment_data["1-propanol standard"] == "Hieu", :]
-ferment_data_E = ferment_data.loc[ferment_data["1-propanol standard"] == "Eric", :]
+ferment_hieu = ferment_data.loc[ferment_data["1-propanol standard"] == "Hieu", :]
+ferment_eric = ferment_data.loc[ferment_data["1-propanol standard"] == "Eric", :]
 
-ferm_merge_keys = ferment_data_E.loc[
+ferm_merge_keys = ferment_eric.loc[
     :, ["Culture type", "Planned time point", "Replicate"]
 ]
-ferment_compare = pd.merge(
+ferment_hieu_eric = pd.merge(
     ferment_data.reset_index(), ferm_merge_keys, how="right"
 ).set_index("Sample ID")
 
-ferment_compare.loc[:, "Compare sample"] = (
-    ferment_compare["Culture type"]
+ferment_hieu_eric.loc[:, "Compare sample"] = (
+    ferment_hieu_eric["Culture type"]
     + " at "
-    + ferment_compare["Actual time point (h)"].astype("str")
+    + ferment_hieu_eric["Actual time point (h)"].astype("str")
     + " h"
 )
 
-compare_samples = pd.Index(ferment_compare["Compare sample"].unique())
-std_source = pd.Index(ferment_compare["1-propanol standard"].unique())
+compare_samples = pd.Index(ferment_hieu_eric["Compare sample"].unique())
+std_source = pd.Index(ferment_hieu_eric["1-propanol standard"].unique())
 
 
 # List culture types
@@ -59,11 +77,11 @@ culture_styles.loc[:,'Fill'] = ['none', 'none', 'none', 'none', 'full', 'full']
 
 # %%
 # Plot fermentation product yield (for writings)
-ferment_group1 = ferment_data_H.groupby(
+ferment_group1 = ferment_hieu.groupby(
     ["Culture type", "Actual time point (h)"], sort=False
 )
 
-series_x = ferment_data_H.loc[:, "Actual time point (h)"].unique()
+series_x = ferment_hieu.loc[:, "Actual time point (h)"].unique()
 
 fig1w, ax1s = plt.subplots(
     nrows=int(len(compound_list) / 2),
@@ -144,7 +162,7 @@ ax2.legend()
  """
 # %%
 # Plot comparision of samples with different standards, by sample (for writings)
-ferment_group3a = ferment_compare.groupby(
+ferment_group3a = ferment_hieu_eric.groupby(
     ["Compare sample", "1-propanol standard"], sort=False
 )
 
@@ -215,7 +233,7 @@ for sample in compare_samples:
 
 # %%
 # Plot comparision of samples with different standards, by compound (for writings)
-ferment_group3b = ferment_compare.groupby(
+ferment_group3b = ferment_hieu_eric.groupby(
     ["1-propanol standard", "Compare sample"], sort=False
 )
 
@@ -289,7 +307,7 @@ for compound in compound_list:
 
 # %%
 # Plot comparision of samples with different standards, by sample, with zoom (for writings)
-ferment_group4a = ferment_compare.groupby(
+ferment_group4a = ferment_hieu_eric.groupby(
     ["Compare sample", "1-propanol standard"], sort=False
 )
 
