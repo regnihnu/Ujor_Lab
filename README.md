@@ -2,7 +2,7 @@ Welcome!
   
 ![Portrait of Hieu Minh Truong][1]  
   
-My name is Hieu Minh Truong, and I am from Viet Nam. I am a Ph.D. student in [Microbiology][2] at the University of Wisconsin - Madison.  
+My name is Hieu Minh Truong. I am from Viet Nam and currently a Ph.D. student in [Microbiology][2] at the University of Wisconsin - Madison.  
 To help build a world where everyone has the chance to flourish, I focus my doctoral research on using (friendly) *Clostridium* bacteria to convert waste materials into valuable industrial chemicals.  
   
 This Git repository houses code scripts related to my doctoral research, which are used for data cleaning and analyses as well as miscellaneous tasks.  
