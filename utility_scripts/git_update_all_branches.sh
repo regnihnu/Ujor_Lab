@@ -4,7 +4,7 @@ cd /mnt/h/ujor_lab
 
 git checkout main
 echo ">>> Pulling remote branch ujor_lab/main into local branch main"
-git pull ujor_lab main
+git pull ujor_lab_hieu main
 echo
 
 BRANCHES=`git branch --format="%(refname)"`
