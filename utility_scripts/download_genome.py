@@ -63,7 +63,7 @@ def download_genome(ftp_address, outdir, organism=None):
             subprocess.run(makeblastdb_cmd)
 
     print(
-        "\n{} genome downloaded and formatted successfully.\nThe associated files are available in {}\n".format(
+        "\n{} genome downloaded and formatted successfully.\nThe associated files are available in genomes/{}\n".format(
             organism, outdir
         )
     )
@@ -76,33 +76,34 @@ def download_genome(ftp_address, outdir, organism=None):
 
 
 # %%
+dlgenome_parser = argparse.ArgumentParser(
+    description=script_descr,
+    fromfile_prefix_chars="@",
+    add_help=False,
+)
+dlgenome_group1 = dlgenome_parser.add_argument_group("Information to provide")
+dlgenome_group1.add_argument(
+    "-n", "--organism-name",
+    help="(Optional) Organism name. This will be used to create the output folder and rename the files associated with the downloaded genome. Words in the name should be separated by underscores, not spaces. The default value is the name of the last folder in output directory.",
+    metavar="<name>",
+)
+dlgenome_group1.add_argument(
+    "-f", "--ftp",
+    help="(Required) Ftp address of the folder containing this genome on the NCBI's server",
+    metavar="<link>",
+    required=True,
+)
+dlgenome_group1.add_argument(
+    "-o", "--outdir",
+    help="(Required) Path to the output folder (which will be created if not present). If organism name is not provided, the end folder in the directory will be used as the organism name.",
+    metavar="<path>",
+    required=True,
+)
+
 # Perform genome download if this script is called as the main script from the terminal
-if __name__ == "__main__":
-    dlgenome_parser = argparse.ArgumentParser(
-        description=script_descr,
-        fromfile_prefix_chars="@",
-        add_help=False,
-    )
-    dlgenome_group1 = dlgenome_parser.add_argument_group("Information to provide")
-    dlgenome_group1.add_argument(
-        "-n", "--organism-name",
-        help="(Optional) Organism name. This will be used to create the output folder and rename the files associated with the downloaded genome. Words in the name should be separated by underscores, not spaces. The default value is the name of the last folder in output directory.",
-        metavar="<name>",
-    )
-    dlgenome_group1.add_argument(
-        "-f", "--ftp",
-        help="(Required) Ftp address of the folder containing this genome on the NCBI's server",
-        metavar="<link>",
-        required=True,
-    )
-    dlgenome_group1.add_argument(
-        "-o", "--outdir",
-        help="(Required) Path to the output folder (which will be created if not present). If organism name is not provided, the end folder in the directory will be used as the organism name.",
-        metavar="<path>",
-        required=True,
-    )
-    if len(sys.argv) == 1:
-        dlgenome_parser.print_help()
-    else:
-        dlgenome_args = dlgenome_parser.parse_args()
-        download_genome(dlgenome_args.ftp, dlgenome_args.outdir, dlgenome_args.organism)
+# if __name__ == "__main__":
+if len(sys.argv) == 1:
+    dlgenome_parser.print_help()
+else:
+    dlgenome_args = dlgenome_parser.parse_args()
+    download_genome(dlgenome_args.ftp, dlgenome_args.outdir, dlgenome_args.organism_name)
