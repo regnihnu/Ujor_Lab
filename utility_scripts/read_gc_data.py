@@ -56,61 +56,61 @@ def read_gc_data(gc_file):
         return -999, -999, -999
 
 
+read_gc_parser = argparse.ArgumentParser(
+    description=script_descr,
+    fromfile_prefix_chars="@",
+    add_help=False,
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+)
+
+read_gc_parser_group1 = read_gc_parser.add_argument_group("Information to provide")
+read_gc_parser_group1.add_argument(
+    "-f",
+    "--file",
+    help="GC raw data file. Can be used multiple times.",
+    action="append",
+    metavar="<file>",
+)
+read_gc_parser_group1.add_argument(
+    "-i",
+    "--indir",
+    help="Directory containing GC raw data files in .txt format. These files can be contained in this directory but can also be contained in subdirectories within this one. Can be used multiple times. \n Note: using a directory with subdirectories requires the '--recursive' option.",
+    metavar="<indir>",
+    action="append",
+)
+read_gc_parser_group1.add_argument(
+    "-o",
+    "--outdir",
+    help="Directory where the result records will be placed.",
+    metavar="<outdir>",
+    required=True,
+)
+read_gc_parser_group1.add_argument(
+    "-e",
+    "--experiment",
+    help="Name of the experiment, which will be used as the base name for all result files.",
+    metavar="<experiment>",
+    required=True,
+)
+
+read_gc_parser_group2 = read_gc_parser.add_argument_group(
+    "Options to modify the script's behavior"
+)
+read_gc_parser_group2.add_argument(
+    "-r",
+    "--recursive",
+    help="Search the provided director(y/ies) and its subdirector(y/ies) recursively for GC raw data files.",
+    action="store_true",
+)
+read_gc_parser_group2.add_argument(
+    "-v",
+    "--verbose",
+    help="Displays the script's progress and results in different verbosity levels:\n 1. Display the resulting concentration values for each sample.\n 2. Display the file being read and the resulting concentration values.",
+    action="count",
+    default=0,
+)
+
 if __name__ == "__main__":
-    read_gc_parser = argparse.ArgumentParser(
-        description=script_descr,
-        fromfile_prefix_chars="@",
-        add_help=False,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-
-    read_gc_parser_group1 = read_gc_parser.add_argument_group("Information to provide")
-    read_gc_parser_group1.add_argument(
-        "-f",
-        "--file",
-        help="GC raw data file. Can be used multiple times.",
-        action="append",
-        metavar="<file>",
-    )
-    read_gc_parser_group1.add_argument(
-        "-i",
-        "--indir",
-        help="Directory containing GC raw data files in .txt format. These files can be contained in this directory but can also be contained in subdirectories within this one. Can be used multiple times. \n Note: using a directory with subdirectories requires the '--recursive' option.",
-        metavar="<indir>",
-        action="append",
-    )
-    read_gc_parser_group1.add_argument(
-        "-o",
-        "--outdir",
-        help="Directory where the result records will be placed.",
-        metavar="<outdir>",
-        required=True,
-    )
-    read_gc_parser_group1.add_argument(
-        "-e",
-        "--experiment",
-        help="Name of the experiment, which will be used as the base name for all result files.",
-        metavar="<experiment>",
-        required=True,
-    )
-
-    read_gc_parser_group2 = read_gc_parser.add_argument_group(
-        "Options to modify the script's behavior"
-    )
-    read_gc_parser_group2.add_argument(
-        "-r",
-        "--recursive",
-        help="Search the provided director(y/ies) and its subdirector(y/ies) recursively for GC raw data files.",
-        action="store_true",
-    )
-    read_gc_parser_group2.add_argument(
-        "-v",
-        "--verbose",
-        help="Displays the script's progress and results in different verbosity levels:\n 1. Display the resulting concentration values for each sample.\n 2. Display the file being read and the resulting concentration values.",
-        action="count",
-        default=0,
-    )
-
     if len(sys.argv) == 1:
         read_gc_parser.print_help()
     else:
