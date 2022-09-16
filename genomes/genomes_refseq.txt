@@ -1,6 +1,7 @@
-Organism,ftp address
+Organism,ftp_address
 Clostridium_tyrobutyricum_KCTC_5387,ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/642/655/GCF_001642655.1_ASM164265v1
 Clostridium_beijerinckii_NCIMB_8052,ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/965/GCF_000016965.1_ASM1696v1
 Clostridium_acetobutylicum_ATCC_824,ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/008/765/GCF_000008765.1_ASM876v1
 Clostridium_pasteurianum_ATCC_6013,ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/856/645/GCF_001856645.1_ASM185664v1
 Clostridium_sporogenes_NCIMB_10696,ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/973/705/GCF_000973705.1_ASM97370v1
+
