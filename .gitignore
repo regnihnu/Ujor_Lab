@@ -6,7 +6,6 @@ plasmids/*
 .vscode
 *.code-workspace
 proj_*
-git-credential-manager
 
 
 # Byte-compiled / optimized / DLL files
